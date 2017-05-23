@@ -1274,25 +1274,25 @@ proc ?SafeDel {} {
 
 proc Insert&Delete {} {
 	global view
-	bind $view(chapters) <Shift-Delete> {DeleteChapter}
-	bind $view(chapters) <Delete> {?SafeDel; DeleteChapter}
-	bind $view(chapters) <Insert> {InsertCDeleted before} 
+	bind $view(chapters) <Command-Key-X> {DeleteChapter}
+	bind $view(chapters) <Command-Key-x> {?SafeDel; DeleteChapter}
+	bind $view(chapters) <Command-Key-v> {InsertCDeleted before} 
 	bind $view(chapters) <BackSpace> {InsertCDeleted before} 
-	bind $view(chapters) <Shift-Insert> {InsertCDeleted after} 
+	bind $view(chapters) <Command-Key-V> {InsertCDeleted after} 
 	bind $view(chapters) <Shift-BackSpace> {InsertCDeleted after} 
 
-	bind $view(sections) <Shift-Delete> {DeleteSection}
-	bind $view(sections) <Delete> {?SafeDel; DeleteSection}
-	bind $view(sections) <Insert> {InsertSDeleted before} 
+	bind $view(sections) <Command-Key-X> {DeleteSection}
+	bind $view(sections) <Command-Key-x> {?SafeDel; DeleteSection}
+	bind $view(sections) <Command-Key-v> {InsertSDeleted before} 
 	bind $view(sections) <BackSpace> {InsertSDeleted before} 
-	bind $view(sections) <Shift-Insert> {InsertSDeleted after} 
+	bind $view(sections) <Command-Key-V> {InsertSDeleted after} 
 	bind $view(sections) <Shift-BackSpace> {InsertSDeleted after} 
 	
-	bind $view(units) <Shift-Delete> {DeleteUnit}
-	bind $view(units) <Delete> {?SafeDel; DeleteUnit}
-	bind $view(units) <Insert> {InsertUDeleted before} 
+	bind $view(units) <Command-Key-X> {DeleteUnit}
+	bind $view(units) <Command-Key-x> {?SafeDel; DeleteUnit}
+	bind $view(units) <Command-Key-v> {InsertUDeleted before} 
 	bind $view(units) <BackSpace> {InsertUDeleted before} 
-	bind $view(units) <Shift-Insert> {InsertUDeleted after} 
+	bind $view(units) <Command-Key-V> {InsertUDeleted after} 
 	bind $view(units) <Shift-BackSpace> {InsertUDeleted after} 
 
 }

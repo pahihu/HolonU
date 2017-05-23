@@ -70,8 +70,8 @@ proc CreateLists {} {
 
 proc mark {w i} {
 	global marked color 
-	$w itemconfigure $i -fg blue -bg #ddddcc ;# 063
-	set marked($w) $i
+    $w itemconfigure $i -fg blue -bg #ddddcc ;# 063
+    set marked($w) $i
 }
 
 proc unmark {w} {
@@ -137,15 +137,17 @@ proc UpdateChapters {} {
      if {[Editing]} {SaveText}
      unmark $view(chapters)     
      set i [$view(chapters) curselection]
-     mark $view(chapters) $i 
-     SetChapter [lindex $Chapters $i]
-     GetSections
-     if {![NoSections]} {GetUnits}
-     ShowPage [Chapter]
-     focus $view(chapters)
-     # keep active chapter in center of pane
-     $view(chapters) yview [expr {[$view(chapters) index active]-$view(height)/2}]
-     $view(chapters) selection set $i
+     if { $i != {} } {
+          mark $view(chapters) $i 
+          SetChapter [lindex $Chapters $i]
+          GetSections
+          if {![NoSections]} {GetUnits}
+          ShowPage [Chapter]
+          focus $view(chapters)
+          # keep active chapter in center of pane
+          $view(chapters) yview [expr {[$view(chapters) index active]-$view(height)/2}]
+          $view(chapters) selection set $i
+     }
 }
 
 proc FocusChapters {} {
@@ -208,13 +210,15 @@ proc UpdateSections {} {
 	if {[NoSections]} {return}
 	unmark $view(sections)      
 	set i [$view(sections) curselection]
-	mark $view(sections) $i 
-	SetSection [lindex $Sections $i]
-	ShowPage [Section]
-	focus $view(sections)     
-	GetUnits
-	$view(sections) selection set $i
-	$view(sections) yview [expr {[$view(sections) index active]-$view(height)/2}]
+     if { $i != {} } {
+	     mark $view(sections) $i 
+	     SetSection [lindex $Sections $i]
+	     ShowPage [Section]
+	     focus $view(sections)     
+	     GetUnits
+	     $view(sections) selection set $i
+	     $view(sections) yview [expr {[$view(sections) index active]-$view(height)/2}]
+    }
 }
 
 proc FocusSections {} {
@@ -279,13 +283,15 @@ proc UpdateUnits {} {
      unmark $view(units)
      update idletasks  
      set i [$view(units) curselection]
-     mark $view(units) $i 
-     SetUnit [lindex $Units $i]
-     $view(units) selection set $i   
-	Text&CodePanes; ShowPage [Unit]
-     focus $view(units) 
-     # show active unit in center of pane
-     $view(units) yview [expr {[$view(units) index active]-$view(height)/2}]
+     if { $i != {} } {
+          mark $view(units) $i 
+          SetUnit [lindex $Units $i]
+          $view(units) selection set $i   
+	     Text&CodePanes; ShowPage [Unit]
+          focus $view(units) 
+          # show active unit in center of pane
+          $view(units) yview [expr {[$view(units) index active]-$view(height)/2}]
+     }
 }
 
 proc FocusUnits {} {
