@@ -115,6 +115,10 @@ proc SetForwardStack {list} {
 	SetBase forward $list
 }
 
+proc CurrentPage {} {
+	lindex [PageStack] end
+}
+
 proc Chapter {} {
      GetBase active
 }
@@ -223,6 +227,14 @@ proc NoUnits {} {
      expr {[GetPage [Section] list]==[Section]}
 }
 
+proc GetUnit {name} {
+	regsub -all {[][?*\\]} $name \\\\& wordEscaped   
+	set ids [mk::select wdb.pages -globnc name $wordEscaped type unit]
+	set id [lindex $ids end]
+	if {$id==""} {set id 0}
+	return $id
+}
+
 set version 0     ;# Current version on which we work, same as the change number.
 
 set oldVersion 0
@@ -263,17 +275,5 @@ proc SavePage {id text code who newName cursor test {newdate ""}} {
   	}
  	SetPage $id source $code who $who cursor $cursor text $text test $test
  	mk::file commit wdb
-}
-
-proc CurrentPage {} {
-	lindex [PageStack] end
-}
-
-proc GetUnit {name} {
-	regsub -all {[][?*\\]} $name \\\\& wordEscaped   
-	set ids [mk::select wdb.pages -globnc name $wordEscaped type unit]
-	set id [lindex $ids end]
-	if {$id==""} {set id 0}
-	return $id
 }
 

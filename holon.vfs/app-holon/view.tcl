@@ -21,6 +21,47 @@ set view(sash1) "0 1000"   ;# Position of sash Code/Test
 set view(height) 10    ;# Number of elements visible in each list
 set view(dragging) 0
 
+proc ButtonRelease {pane} {
+	global view
+	if $view(dragging) {DropSelection $pane}
+#	$pane mark set insert current
+#	return -code break
+}
+
+proc Delimiter {char} {
+	switch [GetBase syntax] {
+		Tcl {return	[regexp {[\s\[\]\{\}\(\)\"\$\:\;]} $char]}
+		Forth {return	[regexp {\s} $char]}
+		default {return	[regexp {[\s\[\]\{\}\(\)\"\$\:\;]} $char]}
+	}
+}
+
+proc GetChar {pane i} {
+	$pane get "current + $i char"
+}
+
+proc MarkIt {pane} {
+	global markedWord
+	if {[Editing]} return
+	$pane tag remove marking 1.0 end 
+	set markedWord ""
+	set i 0; set j 0
+	while {![Delimiter [GetChar $pane $i]]} {
+			incr i -1;  if {$i<-20} {break}
+	}
+	incr i
+	while {![Delimiter [GetChar $pane $j]]} {
+		incr j;  if {$j>20} {break}
+	}
+	set name [$pane get "current + $i char" "current + $j char"]
+    	if [GetUnit $name] {
+		$pane tag add marking "current + $i char" "current + $j char"
+		set markedWord $name
+	} 
+}
+
+
+
 proc ChapterList {} {  
 	global view color
 	frame $view(lists).cf  -bg $color(menu) -relief flat
@@ -567,45 +608,6 @@ proc CodePane {} {
 	return $pf
 }
 
-proc ButtonRelease {pane} {
-	global view
-	if $view(dragging) {DropSelection $pane}
-#	$pane mark set insert current
-#	return -code break
-}
-
-proc Delimiter {char} {
-	switch [GetBase syntax] {
-		Tcl {return	[regexp {[\s\[\]\{\}\(\)\"\$\:\;]} $char]}
-		Forth {return	[regexp {\s} $char]}
-		default {return	[regexp {[\s\[\]\{\}\(\)\"\$\:\;]} $char]}
-	}
-}
-
-proc GetChar {pane i} {
-	$pane get "current + $i char"
-}
-
-proc MarkIt {pane} {
-	global markedWord
-	if {[Editing]} return
-	$pane tag remove marking 1.0 end 
-	set markedWord ""
-	set i 0; set j 0
-	while {![Delimiter [GetChar $pane $i]]} {
-			incr i -1;  if {$i<-20} {break}
-	}
-	incr i
-	while {![Delimiter [GetChar $pane $j]]} {
-		incr j;  if {$j>20} {break}
-	}
-	set name [$pane get "current + $i char" "current + $j char"]
-    	if [GetUnit $name] {
-		$pane tag add marking "current + $i char" "current + $j char"
-		set markedWord $name
-	} 
-}
-
 proc CodeReturn {} {
 	global view
 	set lineno [expr {int([$view(code) index insert])}]
@@ -1142,6 +1144,8 @@ proc CreateFonts {} {
 	set titlesize [expr $textsize+4]
 	set infosize  [expr $textsize-1]
 	set smallsize [expr $textsize-3]
+	set found [lsearch -exact [font names] fixed]
+	if {$found != -1} {font delete fixed}
 	font create default -family $textfont -size $textsize 
 	font create underline -family $textfont -size $textsize -underline true
 	font create bold -family $textfont -size $textsize -weight bold
@@ -1185,7 +1189,7 @@ proc CreatePage {} {
 	frame $view(page) -relief flat
 	set view(panes) $view(page).panes
 	panedwindow $view(panes) -orient vertical -relief groove -borderwidth 0 \
-		-sashrelief flat -opaqueresize 1 -sashwidth 1 
+		-sashrelief flat -opaqueresize 1 -sashwidth 1 -showhandle 1
 	$view(panes) add [TextPane]
 	$view(panes) add [CodePane]
 	if {[Bonus]} {$view(panes) add [TestPane]}

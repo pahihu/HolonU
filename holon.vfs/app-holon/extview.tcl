@@ -1,3 +1,26 @@
+proc RemoveTags {t} {
+	set text ""	
+	foreach {key value index} $t {
+		if {$key=="text"} {
+			append text $value
+		}
+	}
+	return $text
+}
+
+proc quote {q} {
+	regsub -all {ä} $q {\'e4} q
+	regsub -all {ö} $q {\'f6} q 
+	regsub -all {ü} $q {\'fc} q
+	regsub -all {Ä} $q {\'c4} q
+	regsub -all {Ö} $q {\'d6} q
+	regsub -all {Ü} $q {\'dc} q
+	regsub -all {\n} $q {\\par } q
+	regsub -all "{" $q {\{ } q
+	regsub -all  } $q {\} } q
+	return $q
+}
+
 set pageSize 62
 
 proc PrintHeader {} {
@@ -36,16 +59,6 @@ proc PrintTitle {id} {
 	set n [string length $l]
 	set l [string repeat "-" $n]
 	WriteLine $l
-}
-
-proc RemoveTags {t} {
-	set text ""	
-	foreach {key value index} $t {
-		if {$key=="text"} {
-			append text $value
-		}
-	}
-	return $text
 }
 
 proc PrintTextLine {l} {
@@ -175,19 +188,6 @@ proc PrintChapter {} {
 	}
 	EndPrint
 	SetSection $current
-}
-
-proc quote {q} {
-	regsub -all {ä} $q {\'e4} q
-	regsub -all {ö} $q {\'f6} q 
-	regsub -all {ü} $q {\'fc} q
-	regsub -all {Ä} $q {\'c4} q
-	regsub -all {Ö} $q {\'d6} q
-	regsub -all {Ü} $q {\'dc} q
-	regsub -all {\n} $q {\\par } q
-	regsub -all "{" $q {\{ } q
-	regsub -all  } $q {\} } q
-	return $q
 }
 
 proc TextToRTF {r} {

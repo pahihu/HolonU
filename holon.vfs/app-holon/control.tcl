@@ -1,3 +1,45 @@
+proc SetUnitsType {t} {
+	set u [Unit]
+	SetUnit [FirstUnit]
+	while {[Unit]!=[Section]} {
+		SetPage [Unit] type $t
+		SetUnit [NextUnit]
+	}
+	SetUnit $u
+}
+
+proc Editing {} {
+	global view 
+	expr {[$view(text) cget -state]=="normal"}
+}
+
+proc GetImage {filename} {
+	global view
+	set p [image create photo]
+	$p read $filename
+	$view(text) image create end -image $p
+}
+
+set URL-Windows [auto_execok start]
+
+proc ShowURL {} {
+	global view URL-Windows
+	if [Editing] return
+	set webadr [eval {$view(text) get} [$view(text) tag prevrange url current]]
+ 	if {$::tcl_platform(os)=="Darwin"} {
+		eval exec open $webadr &
+	} {
+		eval exec [auto_execok start] $webadr &
+	} 
+}
+
+proc LoadImages {} {
+	global view
+	foreach {a b} [$view(text) tag ranges image] {
+		GetImage [$view(text) get $a $b]
+	}
+}
+
 proc SetCurrent {type} {
 	global view
 	switch $type {
@@ -173,16 +215,6 @@ proc UnlinkSection {} {
      SetPage $s next [GetBase delsections] type deleted
      SetUnitsType deleted
      SetBase delsections $s
-}
-
-proc SetUnitsType {t} {
-	set u [Unit]
-	SetUnit [FirstUnit]
-	while {[Unit]!=[Section]} {
-		SetPage [Unit] type $t
-		SetUnit [NextUnit]
-	}
-	SetUnit $u
 }
 
 proc DeleteSection {} {
@@ -711,11 +743,6 @@ proc CopyName {} {
 	UpdateName
 }
 
-proc Editing {} {
-	global view 
-	expr {[$view(text) cget -state]=="normal"}
-}
-
 proc TextChanged {} {
 	global view oldText oldCode newText newCode
 	set newText [$view(text) get 1.0 end]
@@ -790,39 +817,12 @@ proc EditIt {} {
 	if {![Editing]} {EditPage}
 }
 
-proc GetImage {filename} {
-	global view
-	set p [image create photo]
-	$p read $filename
-	$view(text) image create end -image $p
-}
-
-set URL-Windows [auto_execok start]
-
-proc ShowURL {} {
-	global view URL-Windows
-	if [Editing] return
-	set webadr [eval {$view(text) get} [$view(text) tag prevrange url current]]
- 	if {$::tcl_platform(os)=="Darwin"} {
-		eval exec open $webadr &
-	} {
-		eval exec [auto_execok start] $webadr &
-	} 
-}
-
 proc TextReturn {} {
 	global view
 	if {[$view(text) index "end-1c"]=="1.0"} {
 		focus $view(code); tk::TextSetCursor $view(code) 1.0
 	}
 	ClearPosx
-}
-
-proc LoadImages {} {
-	global view
-	foreach {a b} [$view(text) tag ranges image] {
-		GetImage [$view(text) get $a $b]
-	}
 }
 
 set posx -1
@@ -908,7 +908,7 @@ proc SelectDownLine {pane} {
 
 proc StartOfLine {pane} {
 	tk::TextSetCursor $pane [LineStart $pane]
-}	
+}
 
 proc SelectStartOfLine {pane} {
 	tk::TextKeySelect $pane [LineStart $pane]
@@ -916,7 +916,7 @@ proc SelectStartOfLine {pane} {
 
 proc EndOfLine {pane} {
 	tk::TextSetCursor $pane [LineEnd $pane]
-}	
+}
 
 proc SelectEndOfLine {pane} {
 	tk::TextKeySelect $pane [LineEnd $pane]
@@ -982,6 +982,15 @@ proc DropSelection {pane} {
 	} {	
 		$pane insert current $selection
 		$pane delete [$pane index sel.first] [$pane index sel.last]
+	}
+}
+
+proc GotoWord {pane} {
+	global markedWord
+	if {$markedWord!=""} {
+		set id [GetUnit $markedWord]
+		if {[Editing]} {SaveText}
+		ShowPage $id
 	}
 }
 
@@ -1170,15 +1179,6 @@ proc SearchWord {pane} {
 		set findText [eval {$pane get} $selection ]
 	} {
 		set findText [GetWord $pane]
-	}
-}
-
-proc GotoWord {pane} {
-	global markedWord
-	if {$markedWord!=""} {
-		set id [GetUnit $markedWord]
-		if {[Editing]} {SaveText}
-		ShowPage $id
 	}
 }
 

@@ -15,6 +15,8 @@ if {$tcl_platform(os)=="Darwin"} {set RightButton Button-2}
 
 if {$tcl_platform(os)=="Linux"} {tk scaling 1.2}
 
+set mlast 0
+
 set mfile $dir/holon.mon
 
 proc Last {} {
@@ -31,8 +33,6 @@ proc DoIt {} {
 	global mfile
 	puts [uplevel #0 {eval {source $mfile}}]
 }
-
-set mlast 0
 
 proc Monitor {} {
 	global mlast errorInfo
